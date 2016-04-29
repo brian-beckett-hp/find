@@ -31,6 +31,7 @@ require.config({
         raphael: '../bower_components/raphael/raphael',
         settings: '../bower_components/hp-autonomy-settings-page/src',
         slider: '../bower_components/seiyria-bootstrap-slider/dist',
+        store: '../bower_components/store2/src/store2',
         text: '../bower_components/requirejs-text/text',
         sunburst: '../bower_components/hp-autonomy-sunburst/src',
         topicmap: '../bower_components/hp-autonomy-topic-map/src',

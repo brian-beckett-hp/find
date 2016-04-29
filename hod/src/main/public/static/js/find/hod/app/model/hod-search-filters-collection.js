@@ -12,8 +12,16 @@ define([
     return SearchFiltersCollection.extend({
         getDatabasesFilterText: function() {
             var databaseFilter = this.selectedIndexesCollection.map(function (model) {
-                var displayName = this.indexesCollection.findWhere({name: model.get('name'), domain: model.get('domain')}).get('displayName');
-                return displayName || model.get('name');
+                var indexModel = this.indexesCollection.findWhere({
+                    name: model.get('name'),
+                    domain: model.get('domain')
+                });
+
+                if (indexModel && indexModel.get('displayName')) {
+                    return indexModel.get('displayName');
+                } else {
+                    return model.get('name');
+                }
             }, this);
 
             return i18n['search.indexes'] + ': ' + databaseFilter.join(', ');

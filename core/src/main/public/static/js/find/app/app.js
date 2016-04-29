@@ -7,6 +7,7 @@ define([
     'jquery',
     'backbone',
     'underscore',
+    'store',
     'find/app/util/test-browser',
     'find/app/model/indexes-collection',
     'find/app/model/saved-searches/saved-query-collection',
@@ -18,7 +19,7 @@ define([
     'find/app/vent',
     'find/app/router',
     'text!find/templates/app/app.html'
-], function($, Backbone, _, testBrowser, IndexesCollection, SavedQueryCollection, ModelRegistry, Navigation, configuration, Pages, logout, vent, router, template) {
+], function($, Backbone, _, store, testBrowser, IndexesCollection, SavedQueryCollection, ModelRegistry, Navigation, configuration, Pages, logout, vent, router, template) {
 
     return Backbone.View.extend({
         el: '.page',
@@ -60,7 +61,9 @@ define([
 
                 var matchedRoute = Backbone.history.start();
 
-                if (!matchedRoute) {
+                if(store.session('lastQuery')) {
+                    vent.navigate('find/search')
+                } else if (!matchedRoute) {
                     vent.navigate('find/search/splash');
                 }
             }.bind(this));

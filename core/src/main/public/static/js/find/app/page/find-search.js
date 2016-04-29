@@ -25,13 +25,15 @@ define([
     'find/app/util/database-name-resolver',
     'find/app/router',
     'find/app/vent',
+    'moment',
+    'store',
     'i18n!find/nls/bundle',
     'jquery',
     'underscore',
     'text!find/templates/app/page/find-search.html'
 ], function (BasePage, Backbone, config, DatesFilterModel, SelectedParametricValuesCollection, IndexesCollection, DocumentsCollection,
              InputView, TabbedSearchView, addChangeListener, MergeCollection, SavedSearchModel, QueryMiddleColumnHeaderView,
-             QueryTextModel, DocumentModel, DocumentDetailView, queryStrategy, relatedConceptsClickHandlers, databaseNameResolver, router, vent, i18n, $, _, template) {
+             QueryTextModel, DocumentModel, DocumentDetailView, queryStrategy, relatedConceptsClickHandlers, databaseNameResolver, router, vent, moment, store, i18n, $, _, template) {
 
     'use strict';
 
@@ -66,8 +68,22 @@ define([
                     database: options.database
                 }
             }).done(function () {
-            callback(documentModel);
-        });
+                callback(documentModel);
+            });
+    }
+
+    function attributesToJson(attributes) {
+        return _.defaults({
+            minDate: attributes.minDate ? attributes.minDate.unix() : null,
+            maxDate: attributes.maxDate ? attributes.maxDate.unix() : null
+        }, attributes);
+    }
+
+    function jsonToAttributes(json) {
+        return _.defaults({
+            minDate: json.minDate ? moment.unix(json.minDate) : null,
+            maxDate: json.maxDate ? moment.unix(json.maxDate) : null
+        }, json);
     }
 
     return BasePage.extend({
@@ -116,6 +132,12 @@ define([
             // Map of saved search cid to ServiceView
             this.serviceViews = {};
 
+            var lastQuery = store.session('lastQuery');
+
+            if (lastQuery) {
+                this.createNewTab(jsonToAttributes(lastQuery));
+            }
+
             this.listenTo(this.selectedTabModel, 'change', this.selectContentView);
 
             this.listenTo(this.searchModel, 'change', function () {
@@ -127,7 +149,7 @@ define([
 
                     // Create a tab if the user has run a search but has no open tabs
                     if (this.selectedTabModel.get('selectedSearchCid') === null) {
-                        this.createNewTab(this.searchModel.get('inputText'));
+                        this.createNewTab({queryText: this.searchModel.get('inputText')});
                     }
                 }
             });
@@ -235,7 +257,7 @@ define([
             var savedSearchConfig = config().savedSearchConfig;
             if (savedSearchConfig.pollForUpdates) {
                 this.savedSearchScheduleId = setInterval(_.bind(function () {
-                    this.savedQueryCollection.fetch({remove:false}).done(_.bind(function () {
+                    this.savedQueryCollection.fetch({remove: false}).done(_.bind(function () {
                         this.savedQueryCollection.forEach(function (savedQuery) {
                             $.ajax('../api/public/saved-query/new-results/' + savedQuery.id)
                                 .success(function (newResults) {
@@ -302,13 +324,20 @@ define([
             };
         },
 
-        createNewTab: function (queryText) {
-            var newSearch = new SavedSearchModel({
-                queryText: queryText || '*',
+        createNewTab: function (options) {
+            var attributes = _.defaults(options || {}, {
+                queryText: '*',
+                indexes: [],
+                parametricValues: [],
+                dateRange: options.dateRange,
+                maxDate: null,
+                minDate: null,
                 relatedConcepts: [],
-                title: i18n['search.newSearch'],
-                type: SavedSearchModel.Type.QUERY
+                type: SavedSearchModel.Type.QUERY,
+                title: i18n['search.newSearch']
             });
+
+            var newSearch = new SavedSearchModel(attributes);
 
             this.savedQueryCollection.add(newSearch);
             this.selectedTabModel.set('selectedSearchCid', newSearch.cid);
@@ -336,14 +365,16 @@ define([
                 var viewData;
                 var savedSearchModel = this.savedSearchCollection.get(cid);
                 var searchType = savedSearchModel.get('type');
+                var queryState;
 
                 if (this.serviceViews[cid]) {
                     viewData = this.serviceViews[cid];
+                    queryState = this.queryStates.get(cid);
                 } else {
                     var queryTextModel = new QueryTextModel(savedSearchModel.toQueryTextModelAttributes());
                     var documentsCollection = new this.searchTypes[searchType].DocumentsCollection();
 
-                    var queryState = {
+                    queryState = {
                         queryTextModel: queryTextModel,
                         datesFilterModel: new DatesFilterModel(savedSearchModel.toDatesFilterModelAttributes()),
                         selectedParametricValues: new SelectedParametricValuesCollection(savedSearchModel.toSelectedParametricValues())
@@ -402,7 +433,28 @@ define([
                 this.searchChangeCallback = addChangeListener(this, this.searchModel, QUERY_TEXT_MODEL_ATTRIBUTES, this.searchTypes[searchType].searchModelChange(changeListenerOptions));
 
                 viewData.view.$el.removeClass('hide');
+
+                this.updateQueryTracking(queryState);
             }
+        },
+
+        saveQueryState: function() {
+            store.session('lastQuery', attributesToJson(SavedSearchModel.attributesFromQueryState(this.currentQueryState)));
+        },
+
+        updateQueryTracking: function (queryState) {
+            if (this.currentQueryState) {
+                _.each(this.currentQueryState, function (listenedObject) {
+                    this.stopListening(listenedObject, this.saveQueryState);
+                }, this)
+            }
+
+            this.listenTo(queryState.queryTextModel, 'change', this.saveQueryState);
+            this.listenTo(queryState.datesFilterModel, 'change', this.saveQueryState);
+            this.listenTo(queryState.selectedParametricValues, 'update', this.saveQueryState);
+            this.listenTo(queryState.selectedIndexes, 'update', this.saveQueryState);
+
+            this.currentQueryState = queryState;
         },
 
         generateURL: function () {
