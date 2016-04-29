@@ -25,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
@@ -41,16 +42,19 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public abstract class AbstractSavedQueryIT extends AbstractFindIT {
-    private static final TypeReference<Set<SavedQuery>> LIST_TYPE_REFERENCE = new TypeReference<Set<SavedQuery>>() {};
+    private static final TypeReference<Set<SavedQuery>> LIST_TYPE_REFERENCE = new TypeReference<Set<SavedQuery>>() {
+    };
 
     private static final String TITLE = "Any old saved search";
     private static final String QUERY_TEXT = "orange";
     private static final String PRIMARY_PHRASE = "manhattan";
     private static final String OTHER_PHRASE = "mid-town";
+    private static final Integer MIN_SCORE = 88;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -84,6 +88,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
                 .andExpect(jsonPath("$.id", not(nullValue())))
                 .andExpect(jsonPath("$.title", equalTo(TITLE)))
                 .andExpect(jsonPath("$.queryText", equalTo(QUERY_TEXT)))
+                .andExpect(jsonPath("$.minScore", equalTo(MIN_SCORE)))
                 .andExpect(jsonPath("$.conceptClusterPhrases", hasSize(2)))
                 .andExpect(jsonPath("$.conceptClusterPhrases[*].phrase", containsInAnyOrder(PRIMARY_PHRASE, OTHER_PHRASE)))
                 .andExpect(jsonPath("$.conceptClusterPhrases[?(@.phrase=='" + PRIMARY_PHRASE + "')].primary", contains(true)))
@@ -98,21 +103,27 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
 
         final String updatedQueryText = "banana";
         final String updatedPhrase = "jersey";
+        final Integer updatedMinScore = 99;
         final Set<ConceptClusterPhrase> conceptClusterPhrases = new HashSet<>();
         conceptClusterPhrases.add(new ConceptClusterPhrase(updatedPhrase, true, 1));
 
         final SavedQuery updatedQuery = new SavedQuery.Builder()
                 .setQueryText(updatedQueryText)
+                .setMinScore(updatedMinScore)
                 .setConceptClusterPhrases(conceptClusterPhrases)
                 .build();
 
-        mockMvc.perform(put(SavedQueryController.PATH + '/' + createdEntity.getId())
+        final MockHttpServletRequestBuilder requestBuilder = put(SavedQueryController.PATH + '/' + createdEntity.getId())
+                .with(authentication(userAuth()))
                 .content(mapper.writeValueAsString(updatedQuery))
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(requestBuilder)
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$.id", is(createdEntity.getId().intValue())))
                 .andExpect(jsonPath("$.queryText", equalTo(updatedQueryText)))
+                .andExpect(jsonPath("$.minScore", equalTo(updatedMinScore)))
                 .andExpect(jsonPath("$.conceptClusterPhrases", hasSize(1)))
                 .andExpect(jsonPath("$.conceptClusterPhrases[*].phrase", contains(updatedPhrase)))
                 .andExpect(jsonPath("$.conceptClusterPhrases[?(@.phrase=='" + updatedPhrase + "')].primary", contains(true)))
@@ -126,9 +137,12 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
 
         final byte[] requestBytes = IOUtils.toByteArray(saveQueryRequestResource.getInputStream());
 
-        final MvcResult createResult = mockMvc.perform(post(SavedQueryController.PATH + '/')
+        final MockHttpServletRequestBuilder requestBuilder = post(SavedQueryController.PATH + '/')
                 .content(requestBytes)
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(authentication(userAuth()));
+
+        final MvcResult createResult = mockMvc.perform(requestBuilder)
                 .andReturn();
 
         final JsonNode responseTree = mapper.readTree(createResult.getResponse().getContentAsString());
@@ -163,9 +177,11 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
     public void deleteById() throws Exception {
         final SavedQuery createdEntity = createAndParseSavedQuery(getBaseSavedQuery());
 
-        mockMvc.perform(delete(SavedQueryController.PATH + '/' + createdEntity.getId())
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        final MockHttpServletRequestBuilder requestBuilder = delete(SavedQueryController.PATH + '/' + createdEntity.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(authentication(userAuth()));
+
+        mockMvc.perform(requestBuilder).andExpect(status().isOk());
 
         final Set<SavedQuery> queries = listAndParseSavedQueries();
         assertThat(queries, is(empty()));
@@ -181,6 +197,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         final SavedQuery inputSavedQuery = new SavedQuery.Builder()
                 .setTitle("title")
                 .setQueryText("*")
+                .setMinScore(0)
                 .build();
 
         final SavedQuery savedQuery = createAndParseSavedQuery(inputSavedQuery);
@@ -199,6 +216,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         final SavedQuery savedQueryUpdate = new SavedQuery.Builder()
                 .setId(savedQuery.getId())
                 .setTitle("new title")
+                .setMinScore(0)
                 .build();
 
         final SavedQuery updatedSavedQuery = updateAndParseSavedQuery(savedQueryUpdate);
@@ -213,11 +231,13 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         final SavedQuery savedQuery1 = new SavedQuery.Builder()
                 .setTitle("title1")
                 .setQueryText("*")
+                .setMinScore(0)
                 .build();
 
         final SavedQuery savedQuery2 = new SavedQuery.Builder()
                 .setTitle("title2")
                 .setQueryText("*")
+                .setMinScore(0)
                 .build();
 
         createSavedQuery(savedQuery1);
@@ -234,6 +254,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         final SavedQuery saveRequest1 = new SavedQuery.Builder()
                 .setTitle("title1")
                 .setQueryText("*")
+                .setMinScore(0)
                 .setIndexes(indexes)
                 .build();
 
@@ -241,6 +262,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
                 .setDateNewDocsLastFetched(DateTime.now())
                 .setTitle("title2")
                 .setQueryText("*")
+                .setMinScore(0)
                 .setIndexes(indexes)
                 .build();
 
@@ -250,21 +272,24 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         final SavedQuery savedQuery2 = createAndParseSavedQuery(saveRequest2);
         final long id2 = savedQuery2.getId();
 
-        mockMvc.perform(get(SavedQueryController.PATH + NEW_RESULTS_PATH + id1))
+        mockMvc.perform(get(SavedQueryController.PATH + NEW_RESULTS_PATH + id1).with(authentication(userAuth())))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", is(true)));
 
-        mockMvc.perform(get(SavedQueryController.PATH + NEW_RESULTS_PATH + id2))
+        mockMvc.perform(get(SavedQueryController.PATH + NEW_RESULTS_PATH + id2).with(authentication(userAuth())))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(jsonPath("$", is(false))); // likely to work though not full-proof
     }
 
     private ResultActions createSavedQuery(final SavedQuery savedQuery) throws Exception {
-        return mockMvc.perform(post(SavedQueryController.PATH + '/')
+        final MockHttpServletRequestBuilder requestBuilder = post(SavedQueryController.PATH + '/')
                 .content(mapper.writeValueAsString(savedQuery))
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(authentication(userAuth()));
+
+        return mockMvc.perform(requestBuilder);
     }
 
     private SavedQuery createAndParseSavedQuery(final SavedQuery savedQuery) throws Exception {
@@ -274,17 +299,18 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
     }
 
     private SavedQuery updateAndParseSavedQuery(final SavedQuery update) throws Exception {
-        final MvcResult mvcResult = mockMvc.perform(put(SavedQueryController.PATH + '/' + update.getId())
+        final MockHttpServletRequestBuilder requestBuilder = put(SavedQueryController.PATH + '/' + update.getId())
                 .content(mapper.writeValueAsString(update))
-                .contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(authentication(userAuth()));
 
+        final MvcResult mvcResult = mockMvc.perform(requestBuilder).andReturn();
         final String response = mvcResult.getResponse().getContentAsString();
         return mapper.readValue(response, SavedQuery.class);
     }
 
     private ResultActions listSavedQueries() throws Exception {
-        return mockMvc.perform(get(SavedQueryController.PATH));
+        return mockMvc.perform(get(SavedQueryController.PATH).with(authentication(userAuth())));
     }
 
     private Set<SavedQuery> listAndParseSavedQueries() throws Exception {
@@ -309,6 +335,7 @@ public abstract class AbstractSavedQueryIT extends AbstractFindIT {
         return new SavedQuery.Builder()
                 .setTitle(TITLE)
                 .setQueryText(QUERY_TEXT)
+                .setMinScore(MIN_SCORE)
                 .setConceptClusterPhrases(getBaseConceptClusterPhrases())
                 .build();
     }

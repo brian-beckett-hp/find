@@ -17,6 +17,7 @@ define([
     'find/app/util/merge-collection',
     'find/app/model/saved-searches/saved-search-model',
     'find/app/page/search/query-middle-column-header-view',
+    'find/app/model/min-score-model',
     'find/app/model/query-text-model',
     'find/app/model/document-model',
     'find/app/page/search/document/document-detail-view',
@@ -32,7 +33,7 @@ define([
     'underscore',
     'text!find/templates/app/page/find-search.html'
 ], function (BasePage, Backbone, config, DatesFilterModel, SelectedParametricValuesCollection, IndexesCollection, DocumentsCollection,
-             InputView, TabbedSearchView, addChangeListener, MergeCollection, SavedSearchModel, QueryMiddleColumnHeaderView,
+             InputView, TabbedSearchView, addChangeListener, MergeCollection, SavedSearchModel, QueryMiddleColumnHeaderView, MinScoreModel,
              QueryTextModel, DocumentModel, DocumentDetailView, queryStrategy, relatedConceptsClickHandlers, databaseNameResolver, router, vent, moment, store, i18n, $, _, template) {
 
     'use strict';
@@ -372,10 +373,12 @@ define([
                     queryState = this.queryStates.get(cid);
                 } else {
                     var queryTextModel = new QueryTextModel(savedSearchModel.toQueryTextModelAttributes());
+                    var minScore = new MinScoreModel(savedSearchModel.toMinScoreModelAttributes());
                     var documentsCollection = new this.searchTypes[searchType].DocumentsCollection();
 
                     queryState = {
                         queryTextModel: queryTextModel,
+                        minScoreModel: minScore,
                         datesFilterModel: new DatesFilterModel(savedSearchModel.toDatesFilterModelAttributes()),
                         selectedParametricValues: new SelectedParametricValuesCollection(savedSearchModel.toSelectedParametricValues())
                     };

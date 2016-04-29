@@ -1420,6 +1420,30 @@ input:-moz-placeholder::before {
     border: none;
 }
 
+.map-field-select {
+    width: 45%;
+}
+
+.location-results-map {
+    min-height: 600px;
+    height: 100%;
+    width: 100%;
+}
+
+.map-show-more {
+    margin-left: 4px;
+    margin-bottom: 4px;
+}
+
+.map-loading-spinner {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.map-results-count {
+    display: inline-block;
+}
+
 .location-tab-map {
     min-height: 400px;
     max-height: 750px;
@@ -1512,4 +1536,12 @@ h4.similar-dates-message {
         display: flex;
         min-height: 100%;
     }
+}
+
+.precision-slider-block {
+    width: 100%;
+}
+
+.precision-slider-block  > div > .slider{
+    width: 100%;
 }
