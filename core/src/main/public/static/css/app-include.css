@@ -337,9 +337,12 @@ fieldset.radio-fieldset > label {
     text-align: right;
 }
 
-.right-side-container,
 .left-side-container {
     width: 20%;
+}
+
+.right-side-container {
+    width: 2%;
 }
 
 .left-side-container.small-container,

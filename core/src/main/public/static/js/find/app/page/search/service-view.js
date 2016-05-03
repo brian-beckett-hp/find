@@ -124,17 +124,6 @@ define([
 
             var entityClickHandler = this.searchTypes[searchType].entityClickHandler(clickHandlerArguments);
 
-            var relatedConceptsView = new RelatedConceptsView(_.extend({
-                clickHandler: this.searchTypes[searchType].relatedConceptsClickHandler(clickHandlerArguments),
-                highlightModel: this.highlightModel
-            }, subViewArguments));
-
-            this.relatedConceptsViewWrapper = new Collapsible({
-                view: relatedConceptsView,
-                collapsed: false,
-                title: i18n['search.relatedConcepts']
-            });
-
             this.resultsView = new this.ResultsView(_.defaults({
                 enablePreview: true,
                 entityClickHandler: entityClickHandler,
@@ -146,8 +135,6 @@ define([
                 resultsView: this.resultsView,
                 queryModel: this.queryModel
             });
-            
-            this.listenTo(this.resultsViewAugmentation, 'rightSideContainerHideToggle', this.rightSideContainerHideToggle);
 
             this.topicMapView = new TopicMapView(_.extend({
                 clickHandler: entityClickHandler
@@ -222,9 +209,7 @@ define([
             }));
 
             this.savedSearchControlView.setElement(this.$('.search-options-container')).render();
-            this.relatedConceptsViewWrapper.render();
 
-            this.$('.related-concepts-container').append(this.relatedConceptsViewWrapper.$el);
             this.resultsViewSelection.setElement(this.$('.results-view-selection')).render();
             this.resultsViewContainer.setElement(this.$('.results-view-container')).render();
 
@@ -265,10 +250,6 @@ define([
             $containerToggle.toggleClass('fa-rotate-180', hide);
         },
 
-        rightSideContainerHideToggle: function(toggle) {
-            this.$('.right-side-container').toggle(toggle);
-        },
-
         remove: function() {
             this.queryModel.stopListening();
 
@@ -279,7 +260,6 @@ define([
                 this.topicMapView,
                 this.resultsViewContainer,
                 this.resultsViewSelection,
-                this.relatedConceptsViewWrapper,
                 this.sunburstView,
                 this.leftSideFooterView,
                 this.middleColumnHeaderView
