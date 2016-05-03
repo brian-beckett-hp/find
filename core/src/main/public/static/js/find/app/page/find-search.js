@@ -437,6 +437,7 @@ define([
                 viewData.view.$el.removeClass('hide');
 
                 this.updateQueryTracking(queryState);
+                this.saveQueryState();
             }
         },
 
