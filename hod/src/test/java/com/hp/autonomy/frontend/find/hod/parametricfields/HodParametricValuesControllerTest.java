@@ -5,8 +5,10 @@
 
 package com.hp.autonomy.frontend.find.hod.parametricfields;
 
+import com.hp.autonomy.frontend.configuration.ConfigService;
 import com.hp.autonomy.frontend.find.core.parametricfields.AbstractParametricValuesControllerTest;
 import com.hp.autonomy.frontend.find.core.parametricfields.ParametricValues;
+import com.hp.autonomy.frontend.find.hod.configuration.HodFindConfig;
 import com.hp.autonomy.frontend.find.hod.search.HodQueryRestrictionsBuilder;
 import com.hp.autonomy.hod.client.api.resource.ResourceIdentifier;
 import com.hp.autonomy.hod.client.error.HodErrorException;
@@ -39,9 +41,12 @@ public class HodParametricValuesControllerTest extends AbstractParametricValuesC
     @Mock
     private FieldsService<HodFieldsRequest, HodErrorException> fieldsService;
 
+    @Mock
+    private ConfigService<HodFindConfig> findConfigService;
+
     @Before
     public void setUp() {
-        parametricValuesController = new HodParametricValuesController(parametricValuesService, new HodQueryRestrictionsBuilder(), fieldsService);
+        parametricValuesController = new HodParametricValuesController(parametricValuesService, new HodQueryRestrictionsBuilder(), fieldsService, findConfigService);
     }
 
     @Test

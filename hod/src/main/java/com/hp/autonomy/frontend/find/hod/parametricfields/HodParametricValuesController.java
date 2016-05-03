@@ -5,9 +5,11 @@
 
 package com.hp.autonomy.frontend.find.hod.parametricfields;
 
+import com.hp.autonomy.frontend.configuration.ConfigService;
 import com.hp.autonomy.frontend.find.core.parametricfields.ParametricValues;
 import com.hp.autonomy.frontend.find.core.parametricfields.ParametricValuesController;
 import com.hp.autonomy.frontend.find.core.search.QueryRestrictionsBuilder;
+import com.hp.autonomy.frontend.find.hod.configuration.HodFindConfig;
 import com.hp.autonomy.hod.client.api.resource.ResourceIdentifier;
 import com.hp.autonomy.hod.client.api.textindex.query.fields.FieldType;
 import com.hp.autonomy.hod.client.error.HodErrorException;
@@ -34,11 +36,13 @@ import java.util.Set;
 @RequestMapping(ParametricValuesController.PARAMETRIC_VALUES_PATH)
 public class HodParametricValuesController extends ParametricValuesController<HodParametricRequest, ResourceIdentifier, HodErrorException> {
     private final FieldsService<HodFieldsRequest, HodErrorException> fieldsService;
+    private final ConfigService<HodFindConfig> findConfigService;
 
     @Autowired
-    public HodParametricValuesController(final ParametricValuesService<HodParametricRequest, ResourceIdentifier, HodErrorException> parametricValuesService, final QueryRestrictionsBuilder<ResourceIdentifier> queryRestrictionsBuilder, FieldsService<HodFieldsRequest, HodErrorException> fieldsService) {
+    public HodParametricValuesController(final ParametricValuesService<HodParametricRequest, ResourceIdentifier, HodErrorException> parametricValuesService, final QueryRestrictionsBuilder<ResourceIdentifier> queryRestrictionsBuilder, FieldsService<HodFieldsRequest, HodErrorException> fieldsService, final ConfigService<HodFindConfig> configService) {
         super(parametricValuesService, queryRestrictionsBuilder);
         this.fieldsService = fieldsService;
+        this.findConfigService = configService;
     }
 
     @Override
@@ -54,6 +58,12 @@ public class HodParametricValuesController extends ParametricValuesController<Ho
         // Fetch parametric field names from HOD
         final TagResponse tagResponse = fieldsService.getFields(new HodFieldsRequest.Builder().setDatabases(databases).build(), Arrays.asList(FieldType.parametric.name(), FieldType.numeric.name()));
         final List<String> fieldNames = tagResponse.getParametricTypeFields();
+
+        Set<String> fieldBlacklist = findConfigService.getConfig().getFieldBlacklist();
+
+        if(fieldBlacklist != null) {
+            fieldNames.removeAll(fieldBlacklist);
+        }
 
         // Get parametric values for query
         final QueryRestrictions<ResourceIdentifier> queryRestrictions = queryRestrictionsBuilder.build(queryText, fieldText, databases, minDate, maxDate, minScore, stateTokens, Collections.<String>emptyList());

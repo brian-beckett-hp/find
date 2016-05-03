@@ -45,6 +45,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     private final RedisConfig redis;
     private final FieldsInfo fieldsInfo;
     private final MapConfiguration map;
+    private final Set<String> fieldBlacklist;
 
     @JsonProperty("savedSearches")
     private final SavedSearchConfig savedSearchConfig;
@@ -58,6 +59,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         fieldsInfo = builder.fieldsInfo;
         queryManipulation = builder.queryManipulation;
         map = builder.map;
+        fieldBlacklist = builder.fieldBlacklist;
         savedSearchConfig = builder.savedSearchConfig;
     }
 
@@ -73,6 +75,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
                 .setHsod(hsod == null ? config.hsod : hsod.merge(config.hsod))
                 .setFieldsInfo(fieldsInfo == null ? config.fieldsInfo : fieldsInfo.merge(config.fieldsInfo))
                 .setMap(map == null ? config.map : map.merge(config.map))
+                .setFieldBlacklist(fieldBlacklist == null ? config.fieldBlacklist : fieldBlacklist)
                 .setSavedSearchConfig(savedSearchConfig == null ? config.savedSearchConfig : savedSearchConfig.merge(config.savedSearchConfig))
                 .build() : this;
     }
@@ -163,6 +166,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         private QueryManipulationConfig queryManipulation;
         private FieldsInfo fieldsInfo;
         private MapConfiguration map;
+        private Set<String> fieldBlacklist;
         @JsonProperty("savedSearches")
         private SavedSearchConfig savedSearchConfig;
 
@@ -175,6 +179,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
             queryManipulation = config.queryManipulation;
             fieldsInfo = config.fieldsInfo;
             map = config.map;
+            fieldBlacklist = config.fieldBlacklist;
             savedSearchConfig = config.savedSearchConfig;
         }
 
