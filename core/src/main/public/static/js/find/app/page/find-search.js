@@ -447,7 +447,7 @@ define([
         updateQueryTracking: function (queryState) {
             if (this.currentQueryState) {
                 _.each(this.currentQueryState, function (listenedObject) {
-                    this.stopListening(listenedObject, this.saveQueryState);
+                    this.stopListening(listenedObject, 'change update', this.saveQueryState);
                 }, this)
             }
 
