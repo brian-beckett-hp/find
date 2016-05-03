@@ -330,7 +330,6 @@ define([
                 queryText: '*',
                 indexes: [],
                 parametricValues: [],
-                dateRange: options.dateRange,
                 maxDate: null,
                 minDate: null,
                 relatedConcepts: [],
