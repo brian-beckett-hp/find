@@ -89,12 +89,15 @@ public abstract class SavedQueryController<S extends Serializable, D extends Sea
                     savedQuery.getMinScore(),
                     Collections.<String>emptyList(),
                     Collections.<String>emptyList());
+
             final SearchRequest<S> searchRequest = new SearchRequest.Builder<S>()
                     .setQueryRestrictions(queryRestrictions)
                     .setMaxResults(1)
                     .setPrint(getNoResultsPrintParam())
-                    .setQueryType(SearchRequest.QueryType.MODIFIED)
+                    // disable query profiles
+                    .setQueryType(SearchRequest.QueryType.RAW)
                     .build();
+
             final Documents<?> searchResults = documentsService.queryTextIndex(searchRequest);
             newResults = searchResults.getTotalResults() > 0;
         }

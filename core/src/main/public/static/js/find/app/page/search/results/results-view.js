@@ -86,7 +86,10 @@ define([
 
         initialize: function(options) {
             this.fetchStrategy = options.fetchStrategy;
-            this.showPromotions = this.fetchStrategy.promotions();
+            
+            // disable all promotions
+            this.showPromotions = false;
+            
             this.enablePreview = options.enablePreview || false;
 
             this.queryModel = options.queryModel;

@@ -116,6 +116,8 @@ public abstract class DocumentsController<S extends Serializable, R extends Sear
                 .setSort(sort)
                 .setHighlight(highlight)
                 .setAutoCorrect(autoCorrect)
+                // disable query profiles
+                .setQueryType(SearchRequest.QueryType.RAW)
                 .build();
     }
 
