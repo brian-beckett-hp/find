@@ -44,6 +44,9 @@ public class HodParametricValuesControllerTest extends AbstractParametricValuesC
     @Mock
     private ConfigService<HodFindConfig> findConfigService;
 
+    @Mock
+    private HodFindConfig hodFindConfig;
+
     @Before
     public void setUp() {
         parametricValuesController = new HodParametricValuesController(parametricValuesService, new HodQueryRestrictionsBuilder(), fieldsService, findConfigService);
@@ -55,6 +58,9 @@ public class HodParametricValuesControllerTest extends AbstractParametricValuesC
         when(response.getParametricTypeFields()).thenReturn(Arrays.asList("field1", "field2"));
         when(response.getNumericTypeFields()).thenReturn(Arrays.asList("field2", "field3"));
         when(fieldsService.getFields(any(HodFieldsRequest.class), anyListOf(String.class))).thenReturn(response);
+
+        when(hodFindConfig.getFieldBlacklist()).thenReturn(Collections.<String>emptySet());
+        when(findConfigService.getConfig()).thenReturn(hodFindConfig);
 
         final QueryTagInfo parametricResponse = mock(QueryTagInfo.class);
         when(parametricResponse.getName()).thenReturn("field1");
