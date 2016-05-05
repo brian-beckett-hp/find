@@ -4,10 +4,11 @@ define([
     'js-whatever/js/list-item-view',
     'find/app/model/search-filters-collection',
     'i18n!find/nls/bundle',
+    'find/app/configuration',
     'text!find/templates/app/page/search/filter-display/filter-display.html',
     'text!find/templates/app/page/search/filter-display/filter-display-item.html',
     'bootstrap'
-], function(Backbone, ListView, ListItemView, SearchFiltersCollection, i18n, template, itemTemplate) {
+], function(Backbone, ListView, ListItemView, SearchFiltersCollection, i18n, configuration, template, itemTemplate) {
 
     var html = _.template(template)({i18n: i18n});
 
@@ -64,6 +65,9 @@ define([
             });
 
             this.listenTo(this.collection, 'reset update', this.updateVisibility);
+
+            this.listenTo(this.collection, 'add', _.bind(this.addDisplayValue, this));
+            this.collection.each(_.bind(this.addDisplayValue, this));
         },
 
         render: function() {
@@ -79,6 +83,20 @@ define([
 
         updateVisibility: function() {
             this.$el.toggleClass('hide', this.collection.isEmpty());
+        }
+        ,
+
+        addDisplayValue: function(model) {
+            var paramsMap = configuration().parametricDisplayValues;
+            if (model.get('type') === 'PARAMETRIC') {
+                var paramMap = _.findWhere(paramsMap, {name: model.id});
+                if (paramMap) {
+                    var param = _.findWhere(paramMap.values, {name: model.get('text')});
+                    if (param) {
+                        model.set('displayName', param.displayName);
+                    }
+                }
+            }
         }
     });
 

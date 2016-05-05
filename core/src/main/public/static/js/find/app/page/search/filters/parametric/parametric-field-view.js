@@ -3,10 +3,11 @@ define([
     'underscore',
     'jquery',
     'i18n!find/nls/bundle',
+    'find/app/configuration',
     'js-whatever/js/list-view',
     'find/app/util/collapsible',
     'find/app/page/search/filters/parametric/parametric-value-view'
-], function(Backbone, _, $, i18n, ListView, Collapsible, ValueView) {
+], function(Backbone, _, $, i18n, configuration, ListView, Collapsible, ValueView) {
 
     var ValuesView = Backbone.View.extend({
         className: 'table parametric-fields-table',
@@ -48,6 +49,19 @@ define([
             this.$el.attr('data-field', this.model.id);
             this.$el.attr('data-field-display-name', this.model.get('displayName'));
             this.$el.attr('data-numeric-type', this.model.get('numeric'));
+
+
+            var paramsMap = configuration().parametricDisplayValues;
+            var paramMap = _.findWhere(paramsMap, {name: this.model.id});
+
+            if (paramMap) {
+                this.model.fieldValues.each(function (value) {
+                    var param = _.findWhere(paramMap.values, {name: value.id});
+                    if (param) {
+                        value.set('displayName', param.displayName);
+                    }
+                })
+            }
 
             this.collapsible = new Collapsible({
                 title: this.model.get('displayName'),

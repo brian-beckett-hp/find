@@ -5,13 +5,31 @@
 
 define([
     'backbone',
+    'find/app/configuration',
     'find/app/page/search/filters/parametric/parametric-view',
     'parametric-refinement/display-collection',
     'parametric-refinement/selected-values-collection'
-], function(Backbone, ParametricView, DisplayCollection, SelectedValuesCollection) {
+], function(Backbone, configuration, ParametricView, DisplayCollection, SelectedValuesCollection) {
 
     describe('Parametric view', function() {
         beforeEach(function() {
+            configuration.and.returnValue({
+                parametricDisplayValues: [
+                    {
+                        name: "place_country_code",
+                        values: [
+                            {
+                                name: "US",
+                                displayName: "United States of America"
+                            },
+                            {
+                                name: "UK",
+                                displayName: "United Kingdom of Great Britain and Northern Ireland"
+                            }
+                        ]
+                    }]
+            });
+
             this.parametricCollection = new Backbone.Collection([
                 {name: 'WIKIPEDIA_CATEGORY', values: [{value: 'food', count: 3}, {value: 'person', count: 5}]},
                 {name: 'PERSON_SEX', values: [{value: 'female', count: 2}]}

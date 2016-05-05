@@ -93,5 +93,20 @@
             ],
             "type": "Date"
         }
-    }
+    },
+    "parametricDisplayValues": [
+        {
+            "name": "place_country_code",
+            "values": [
+                {
+                    "name": "US",
+                    "displayName": "United States of America"
+                },
+                {
+                    "name": "UK",
+                    "displayName": "United Kingdom of Great Britain and Northern Ireland"
+                }
+            ]
+        }
+    ]
 }

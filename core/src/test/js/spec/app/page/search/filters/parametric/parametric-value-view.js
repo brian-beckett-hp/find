@@ -1,10 +1,33 @@
 define([
     'find/app/page/search/filters/parametric/parametric-value-view',
+    'find/app/configuration',
     'backbone'
-], function(ValueView, Backbone) {
+], function(ValueView, configuration, Backbone) {
 
     describe('Parametric value view', function() {
+        
+        afterEach(function() {
+            configuration.and.stub();
+        });
+        
         beforeEach(function() {
+            configuration.and.returnValue({
+                parametricDisplayValues: [
+                    {
+                        name: "place_country_code",
+                        values: [
+                            {
+                                name: "US",
+                                displayName: "United States of America"
+                            },
+                            {
+                                name: "UK",
+                                displayName: "United Kingdom of Great Britain and Northern Ireland"
+                            }
+                        ]
+                    }]
+            });
+            
             this.model = new Backbone.Model({
                 id: 'cat',
                 count: 3,

@@ -1,10 +1,28 @@
 define([
    'find/app/page/search/filters/parametric/parametric-field-view',
+    'find/app/configuration',
     'backbone'
-], function(FieldView, Backbone) {
+], function(FieldView, configuration, Backbone) {
 
     describe('Parametric field view', function() {
         beforeEach(function() {
+            configuration.and.returnValue({
+                parametricDisplayValues: [
+                    {
+                        name: "place_country_code",
+                        values: [
+                            {
+                                name: "US",
+                                displayName: "United States of America"
+                            },
+                            {
+                                name: "UK",
+                                displayName: "United Kingdom of Great Britain and Northern Ireland"
+                            }
+                        ]
+                    }]
+            });
+
             this.model = new Backbone.Model({
                 displayName: 'Primary Author',
                 id: 'primary_author'

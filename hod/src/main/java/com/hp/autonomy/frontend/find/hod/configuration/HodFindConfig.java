@@ -30,6 +30,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jasypt.util.text.TextEncryptor;
 
+import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings({"InstanceVariableOfConcreteClass", "DefaultAnnotationParam"})
@@ -46,6 +47,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     private final FieldsInfo fieldsInfo;
     private final MapConfiguration map;
     private final Set<String> fieldBlacklist;
+    private final List<HodParametricDisplayValues> parametricDisplayValues;
 
     @JsonProperty("savedSearches")
     private final SavedSearchConfig savedSearchConfig;
@@ -61,6 +63,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         map = builder.map;
         fieldBlacklist = builder.fieldBlacklist;
         savedSearchConfig = builder.savedSearchConfig;
+        parametricDisplayValues = builder.parametricDisplayValues;
     }
 
     @SuppressWarnings("OverlyComplexMethod")
@@ -77,6 +80,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
                 .setMap(map == null ? config.map : map.merge(config.map))
                 .setFieldBlacklist(fieldBlacklist == null ? config.fieldBlacklist : fieldBlacklist)
                 .setSavedSearchConfig(savedSearchConfig == null ? config.savedSearchConfig : savedSearchConfig.merge(config.savedSearchConfig))
+                .setParametricDisplayValues(parametricDisplayValues == null ? config.parametricDisplayValues : parametricDisplayValues)
                 .build() : this;
     }
 
@@ -169,6 +173,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         private Set<String> fieldBlacklist;
         @JsonProperty("savedSearches")
         private SavedSearchConfig savedSearchConfig;
+        private List<HodParametricDisplayValues> parametricDisplayValues;
 
         public Builder(final HodFindConfig config) {
             login = config.login;
@@ -181,6 +186,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
             map = config.map;
             fieldBlacklist = config.fieldBlacklist;
             savedSearchConfig = config.savedSearchConfig;
+            parametricDisplayValues = config.parametricDisplayValues;
         }
 
         public HodFindConfig build() {
