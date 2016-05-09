@@ -46,6 +46,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     private final RedisConfig redis;
     private final FieldsInfo fieldsInfo;
     private final MapConfiguration map;
+    private final Integer minScore;
     private final Set<String> fieldBlacklist;
     private final List<HodParametricDisplayValues> parametricDisplayValues;
 
@@ -61,9 +62,10 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         fieldsInfo = builder.fieldsInfo;
         queryManipulation = builder.queryManipulation;
         map = builder.map;
-        fieldBlacklist = builder.fieldBlacklist;
         savedSearchConfig = builder.savedSearchConfig;
+        minScore = builder.minScore;
         parametricDisplayValues = builder.parametricDisplayValues;
+        fieldBlacklist = builder.fieldBlacklist;
     }
 
     @SuppressWarnings("OverlyComplexMethod")
@@ -78,9 +80,10 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
                 .setHsod(hsod == null ? config.hsod : hsod.merge(config.hsod))
                 .setFieldsInfo(fieldsInfo == null ? config.fieldsInfo : fieldsInfo.merge(config.fieldsInfo))
                 .setMap(map == null ? config.map : map.merge(config.map))
-                .setFieldBlacklist(fieldBlacklist == null ? config.fieldBlacklist : fieldBlacklist)
                 .setSavedSearchConfig(savedSearchConfig == null ? config.savedSearchConfig : savedSearchConfig.merge(config.savedSearchConfig))
+                .setMinScore(minScore == null ? config.minScore : minScore)
                 .setParametricDisplayValues(parametricDisplayValues == null ? config.parametricDisplayValues : parametricDisplayValues)
+                .setFieldBlacklist(fieldBlacklist == null ? config.fieldBlacklist : fieldBlacklist)
                 .build() : this;
     }
 
@@ -170,10 +173,11 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         private QueryManipulationConfig queryManipulation;
         private FieldsInfo fieldsInfo;
         private MapConfiguration map;
+        private Integer minScore;
         private Set<String> fieldBlacklist;
+        private List<HodParametricDisplayValues> parametricDisplayValues;
         @JsonProperty("savedSearches")
         private SavedSearchConfig savedSearchConfig;
-        private List<HodParametricDisplayValues> parametricDisplayValues;
 
         public Builder(final HodFindConfig config) {
             login = config.login;
@@ -184,9 +188,10 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
             queryManipulation = config.queryManipulation;
             fieldsInfo = config.fieldsInfo;
             map = config.map;
+            minScore = config.minScore;
             fieldBlacklist = config.fieldBlacklist;
-            savedSearchConfig = config.savedSearchConfig;
             parametricDisplayValues = config.parametricDisplayValues;
+            savedSearchConfig = config.savedSearchConfig;
         }
 
         public HodFindConfig build() {

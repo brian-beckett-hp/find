@@ -334,7 +334,8 @@ define([
                 minDate: null,
                 relatedConcepts: [],
                 type: SavedSearchModel.Type.QUERY,
-                title: i18n['search.newSearch']
+                title: i18n['search.newSearch'],
+                minScore: config().minScore
             });
 
             var newSearch = new SavedSearchModel(attributes);
