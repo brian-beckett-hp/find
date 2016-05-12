@@ -9,6 +9,7 @@ define([
     'underscore',
     'store',
     'find/app/util/test-browser',
+    'find/app/philips',
     'find/app/model/indexes-collection',
     'find/app/model/saved-searches/saved-query-collection',
     './model-registry',
@@ -19,7 +20,7 @@ define([
     'find/app/vent',
     'find/app/router',
     'text!find/templates/app/app.html'
-], function($, Backbone, _, store, testBrowser, IndexesCollection, SavedQueryCollection, ModelRegistry, Navigation, configuration, Pages, logout, vent, router, template) {
+], function($, Backbone, _, store, testBrowser, philips, IndexesCollection, SavedQueryCollection, ModelRegistry, Navigation, configuration, Pages, logout, vent, router, template) {
 
     return Backbone.View.extend({
         el: '.page',
@@ -41,7 +42,7 @@ define([
         initialize: function() {
             $.ajaxSetup({cache: false});
 
-            testBrowser().done(function() {
+            $.when(testBrowser(), philips()).done(function() {
                 var modelRegistry = new ModelRegistry(this.getModelData());
                 var pageData = this.getPageData();
 
