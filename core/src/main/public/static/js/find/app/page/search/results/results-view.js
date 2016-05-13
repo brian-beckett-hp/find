@@ -59,24 +59,6 @@ define([
                 var queryText = $target.attr('data-entity-text');
                 this.entityClickHandler(queryText);
             },
-            'click .preview-mode [data-cid]': function(e) {
-                var $target = $(e.currentTarget);
-
-                if ($target.hasClass('selected-document')) {
-                    //disable preview mode
-                    this.trigger('close-preview');
-
-                    //resetting selected-document class
-                    this.$('.main-results-container').removeClass('selected-document');
-                } else {
-                    //enable/choose another preview view
-                    this.trigger('preview', this.documentsCollection.get($target.data('cid')));
-
-                    //resetting selected-document class and adding it to the target
-                    this.$('.main-results-container').removeClass('selected-document');
-                    $target.addClass('selected-document');
-                }
-            },
             'click .similar-documents-trigger': function(event) {
                 event.stopPropagation();
                 var cid = $(event.target).closest('[data-cid]').data('cid');
