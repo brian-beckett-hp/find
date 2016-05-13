@@ -32,6 +32,16 @@
         "password": null,
         "sentinels": []
     },
+    "securityInfoCommunity": {
+      "protocol": "HTTP",
+      "host": "localhost",
+      "port": 9030,
+      "productType": [
+        "UASERVER",
+        "DAH",
+        "IDOLPROXY"
+      ]
+    },
     "savedSearches": {
         "pollForUpdates": true,
         "pollingInterval": 5

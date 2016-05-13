@@ -8,6 +8,7 @@ package com.hp.autonomy.frontend.find.hod.beanconfiguration;
 import com.hp.autonomy.frontend.find.core.beanconfiguration.DispatcherServletConfiguration;
 import com.hp.autonomy.frontend.find.core.beanconfiguration.FindRole;
 import com.hp.autonomy.frontend.find.core.web.FindController;
+import com.hp.autonomy.frontend.find.hod.authentication.FindSecurityInfoRetrieverService;
 import com.hp.autonomy.frontend.find.hod.authentication.HavenSearchUserMetadata;
 import com.hp.autonomy.frontend.find.hod.authentication.HsodUsernameResolver;
 import com.hp.autonomy.frontend.find.hod.web.SsoController;
@@ -15,11 +16,7 @@ import com.hp.autonomy.hod.client.api.authentication.AuthenticationService;
 import com.hp.autonomy.hod.client.api.authentication.TokenType;
 import com.hp.autonomy.hod.client.api.userstore.user.UserStoreUsersService;
 import com.hp.autonomy.hod.client.token.TokenRepository;
-import com.hp.autonomy.hod.sso.HodAuthenticationProvider;
-import com.hp.autonomy.hod.sso.HodTokenLogoutSuccessHandler;
-import com.hp.autonomy.hod.sso.SsoAuthenticationEntryPoint;
-import com.hp.autonomy.hod.sso.SsoAuthenticationFilter;
-import com.hp.autonomy.hod.sso.UnboundTokenService;
+import com.hp.autonomy.hod.sso.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,7 +54,8 @@ public class HodSecurity extends WebSecurityConfigurerAdapter {
                 unboundTokenService,
                 userStoreUsersService,
                 HavenSearchUserMetadata.METADATA_TYPES,
-                usernameResolver()
+                usernameResolver(),
+                securityInfoRetrieverService()
         ));
     }
 
@@ -90,6 +88,11 @@ public class HodSecurity extends WebSecurityConfigurerAdapter {
     @Bean
     public HsodUsernameResolver usernameResolver() {
         return new HsodUsernameResolver();
+    }
+
+    @Bean
+    public SecurityInfoRetriever securityInfoRetrieverService() {
+        return new FindSecurityInfoRetrieverService();
     }
 
 }

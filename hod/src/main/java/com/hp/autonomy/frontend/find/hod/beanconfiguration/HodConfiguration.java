@@ -5,12 +5,16 @@
 
 package com.hp.autonomy.frontend.find.hod.beanconfiguration;
 
+import com.autonomy.aci.client.services.AciService;
+import com.autonomy.aci.client.services.impl.AciServiceImpl;
+import com.autonomy.aci.client.transport.impl.AciHttpClientImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hp.autonomy.frontend.configuration.Authentication;
 import com.hp.autonomy.frontend.configuration.AuthenticationConfig;
 import com.hp.autonomy.frontend.configuration.ConfigService;
 import com.hp.autonomy.frontend.configuration.SingleUserAuthenticationValidator;
 import com.hp.autonomy.frontend.find.hod.configuration.HodAuthenticationMixins;
+import com.hp.autonomy.frontend.find.hod.configuration.HodFindConfig;
 import com.hp.autonomy.hod.client.api.authentication.AuthenticationService;
 import com.hp.autonomy.hod.client.api.authentication.AuthenticationServiceImpl;
 import com.hp.autonomy.hod.client.api.authentication.EntityType;
@@ -21,13 +25,13 @@ import com.hp.autonomy.hod.client.config.HodServiceConfig;
 import com.hp.autonomy.hod.client.error.HodErrorException;
 import com.hp.autonomy.hod.client.token.TokenProxyService;
 import com.hp.autonomy.hod.client.token.TokenRepository;
-import com.hp.autonomy.hod.sso.HodAuthenticationRequestService;
-import com.hp.autonomy.hod.sso.HodAuthenticationRequestServiceImpl;
-import com.hp.autonomy.hod.sso.HodSsoConfig;
-import com.hp.autonomy.hod.sso.UnboundTokenService;
-import com.hp.autonomy.hod.sso.UnboundTokenServiceImpl;
+import com.hp.autonomy.hod.sso.*;
+import com.hp.autonomy.idolutils.processors.AciResponseJaxbProcessorFactory;
+import com.hp.autonomy.user.UserService;
+import com.hp.autonomy.user.UserServiceImpl;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -43,6 +47,9 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 public class HodConfiguration {
     public static final String SSO_PAGE_PROPERTY = "${find.hod.sso:https://www.idolondemand.com/sso.html}";
     public static final String HOD_API_URL_PROPERTY = "${find.iod.api:https://api.havenondemand.com}";
+    private static final int HTTP_SOCKET_TIMEOUT = 90000;
+    private static final int HTTP_MAX_CONNECTIONS_PER_ROUTE = 20;
+    private static final int HTTP_MAX_CONNECTIONS_TOTAL = 120;
 
     @Autowired
     private Environment environment;
@@ -121,5 +128,37 @@ public class HodConfiguration {
     @Bean
     public UserStoreUsersService userStoreUsersService(final HodServiceConfig<EntityType.Combined, TokenType.Simple> hodServiceConfig) {
         return new UserStoreUsersServiceImpl(hodServiceConfig);
+    }
+
+    @Bean
+    public UserService userService(final ConfigService<HodFindConfig> configService, final AciService aciService, final AciResponseJaxbProcessorFactory processorFactory) {
+        return new UserServiceImpl(configService, aciService, processorFactory);
+    }
+
+    @Bean
+    public AciResponseJaxbProcessorFactory processorFactory() {
+        return new AciResponseJaxbProcessorFactory();
+    }
+
+    @Bean
+    public AciService aciService() {
+        return new AciServiceImpl(new AciHttpClientImpl(aciHttpClient()));
+    }
+
+    @Bean
+    public HttpClient aciHttpClient() {
+        return createHttpClient(HTTP_SOCKET_TIMEOUT, HTTP_MAX_CONNECTIONS_PER_ROUTE, HTTP_MAX_CONNECTIONS_TOTAL);
+    }
+
+    private HttpClient createHttpClient(final int httpSocketTimeout, final int maxConnectionsPerRoute, final int maxConnectionsTotal) {
+        final SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(httpSocketTimeout)
+                .build();
+
+        return HttpClientBuilder.create()
+                .setMaxConnPerRoute(maxConnectionsPerRoute)
+                .setMaxConnTotal(maxConnectionsTotal)
+                .setDefaultSocketConfig(socketConfig)
+                .build();
     }
 }
