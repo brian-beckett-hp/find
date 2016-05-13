@@ -113,7 +113,7 @@ define([
 
             this.filterInput.render();
             this.precisionSlider.render();
-            this.indexesViewWrapper.render();
+            //this.indexesViewWrapper.render();
             this.parametricView.render();
             this.dateViewWrapper.render();
 
