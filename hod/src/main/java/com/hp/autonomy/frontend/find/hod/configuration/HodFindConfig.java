@@ -5,16 +5,12 @@
 
 package com.hp.autonomy.frontend.find.hod.configuration;
 
+import com.autonomy.aci.client.transport.AciServerDetails;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.hp.autonomy.frontend.configuration.AbstractConfig;
-import com.hp.autonomy.frontend.configuration.Authentication;
-import com.hp.autonomy.frontend.configuration.AuthenticationConfig;
-import com.hp.autonomy.frontend.configuration.ConfigException;
-import com.hp.autonomy.frontend.configuration.PasswordsConfig;
-import com.hp.autonomy.frontend.configuration.RedisConfig;
+import com.hp.autonomy.frontend.configuration.*;
 import com.hp.autonomy.frontend.find.core.configuration.FindConfig;
 import com.hp.autonomy.frontend.find.core.configuration.MapConfiguration;
 import com.hp.autonomy.frontend.find.core.configuration.SavedSearchConfig;
@@ -23,6 +19,7 @@ import com.hp.autonomy.hod.sso.HodSsoConfig;
 import com.hp.autonomy.searchcomponents.core.config.FieldsInfo;
 import com.hp.autonomy.searchcomponents.hod.configuration.HodSearchCapable;
 import com.hp.autonomy.searchcomponents.hod.configuration.QueryManipulationConfig;
+import com.hp.autonomy.user.UserServiceConfig;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,7 +34,7 @@ import java.util.Set;
 @JsonDeserialize(builder = HodFindConfig.Builder.class)
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class HodFindConfig extends AbstractConfig<HodFindConfig> implements AuthenticationConfig<HodFindConfig>, HodSearchCapable, PasswordsConfig<HodFindConfig>, HodSsoConfig, FindConfig {
+public class HodFindConfig extends AbstractConfig<HodFindConfig> implements AuthenticationConfig<HodFindConfig>, HodSearchCapable, PasswordsConfig<HodFindConfig>, HodSsoConfig, FindConfig, UserServiceConfig {
     private final Authentication<?> login;
     private final HsodConfig hsod;
     private final IodConfig iod;
@@ -49,6 +46,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     private final Integer minScore;
     private final Set<String> fieldBlacklist;
     private final List<HodParametricDisplayValues> parametricDisplayValues;
+    private final ServerConfig securityInfoCommunity;
 
     @JsonProperty("savedSearches")
     private final SavedSearchConfig savedSearchConfig;
@@ -66,6 +64,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         minScore = builder.minScore;
         parametricDisplayValues = builder.parametricDisplayValues;
         fieldBlacklist = builder.fieldBlacklist;
+        securityInfoCommunity = builder.securityInfoCommunity;
     }
 
     @SuppressWarnings("OverlyComplexMethod")
@@ -81,10 +80,17 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
                 .setFieldsInfo(fieldsInfo == null ? config.fieldsInfo : fieldsInfo.merge(config.fieldsInfo))
                 .setMap(map == null ? config.map : map.merge(config.map))
                 .setSavedSearchConfig(savedSearchConfig == null ? config.savedSearchConfig : savedSearchConfig.merge(config.savedSearchConfig))
+                .setSecurityInfoCommunity(securityInfoCommunity == null ? config.securityInfoCommunity : securityInfoCommunity.merge(config.securityInfoCommunity))
                 .setMinScore(minScore == null ? config.minScore : minScore)
                 .setParametricDisplayValues(parametricDisplayValues == null ? config.parametricDisplayValues : parametricDisplayValues)
                 .setFieldBlacklist(fieldBlacklist == null ? config.fieldBlacklist : fieldBlacklist)
                 .build() : this;
+    }
+
+    @JsonIgnore
+    @Override
+    public AciServerDetails getCommunityDetails() {
+        return securityInfoCommunity.toAciServerDetails();
     }
 
     @Override
@@ -178,6 +184,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
         private List<HodParametricDisplayValues> parametricDisplayValues;
         @JsonProperty("savedSearches")
         private SavedSearchConfig savedSearchConfig;
+        private ServerConfig securityInfoCommunity;
 
         public Builder(final HodFindConfig config) {
             login = config.login;
@@ -192,6 +199,7 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
             fieldBlacklist = config.fieldBlacklist;
             parametricDisplayValues = config.parametricDisplayValues;
             savedSearchConfig = config.savedSearchConfig;
+            securityInfoCommunity = config.securityInfoCommunity;
         }
 
         public HodFindConfig build() {
