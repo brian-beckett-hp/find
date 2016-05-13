@@ -585,6 +585,10 @@ input.find-input {
     cursor: default;
 }
 
+.not-on-philips-network{
+    padding-right: 8px;
+}
+
 .document-reference {
     display: inline-block;
     color: #aeaeae;

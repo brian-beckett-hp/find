@@ -6,13 +6,15 @@
     </span>
 
     <div class="results-contents">
-        <% if (data.isPromotion) { %>
+        <%if (data.isPromotion) { %>
             <span class="pull-right m-t-xs text-muted promoted-label">
                 <i class="hp-icon hp-fw hp-favorite"></i> Promoted
             </span>
         <% } %>
-        <% if (model.get('url')) { %>
+        <% if (model.get('url') && model.get('philipsVisible')) { %>
             <a href="<%- model.get('url') %>" target="_blank"><h4 class="pull-left m-b-nil m-t-xs result-header"><%- model.get('title') %></h4></a>
+        <% } else if (model.get('url') && !model.get('philipsVisible')){ %>
+            <h4 class="pull-left m-b-nil m-t-xs result-header"><i class="hp-icon hp-warning not-on-philips-network" rel="tooltip" title="This document is only available inside the Philips intranet"></i><%- model.get('title') %></h4>
         <% } else { %>
             <h4 class="pull-left m-b-nil m-t-xs result-header"><%- model.get('title') %></h4>
         <% } %>

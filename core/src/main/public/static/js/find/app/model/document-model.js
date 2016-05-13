@@ -79,6 +79,8 @@ define([
             response.mmapUrl = getFieldValue(response.fieldMap.mmapUrl);
             response.sourceType = getFieldValue(response.fieldMap.sourceType);
             response.transcript = getFieldValue(response.fieldMap.transcript);
+            var internalOnly = Number(getFieldValue(response.fieldMap.internalOnly));
+            response.philipsVisible = internalOnly === 0 || (internalOnly === 1 && configuration().onPhilipsNetwork);
 
             if (configuration().map.enabled) {
                 response.locations = _.chain(configuration().map.locationFields)

@@ -103,6 +103,12 @@
                 "modified_date"
             ],
             "type": "Date"
+        },
+        "internalOnly": {
+            "names": [
+                "pgn_only"
+            ]
+
         }
     },
     "parametricDisplayValues": [
