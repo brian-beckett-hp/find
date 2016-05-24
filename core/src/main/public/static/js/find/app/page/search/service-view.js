@@ -235,7 +235,7 @@ define([
                     stateTokens: this.queryModel.get('stateMatchIds')
                 };
 
-                this.entityCollection.fetch({data: data});
+                //this.entityCollection.fetch({data: data});
                 this.parametricCollection.fetch({data: data});
             }
         },
