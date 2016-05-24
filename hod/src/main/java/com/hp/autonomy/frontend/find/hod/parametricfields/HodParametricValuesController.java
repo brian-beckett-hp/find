@@ -71,6 +71,7 @@ public class HodParametricValuesController extends ParametricValuesController<Ho
         final HodParametricRequest parametricRequest = new HodParametricRequest.Builder()
                 .setFieldNames(fieldNames)
                 .setQueryRestrictions(queryRestrictions)
+                .setModified(false)
                 .build();
 
         final Set<QueryTagInfo> parametricValues = parametricValuesService.getAllParametricValues(parametricRequest);
