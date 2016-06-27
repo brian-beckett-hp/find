@@ -19,23 +19,25 @@ public class FindSecurityInfoRetrieverService implements SecurityInfoRetriever {
     private UserService userService;
 
     @Override
-    public String getSecurityInfo(UserInformation userInformation) {
+    public String getSecurityInfo(final UserInformation userInformation) {
         String securityInfo = null;
 
-        if(userInformation.getAccounts() != null) {
-            for(Account account: userInformation.getAccounts()) {
-                if(account.getType().equals(Account.Type.ONSITE)) {
+        if (userInformation.getAccounts() != null) {
+            for (final Account account : userInformation.getAccounts()) {
+                final Account.Type accountType = account.getType();
+
+                if (accountType.equals(Account.Type.ONSITE) || accountType.equals("active_directory")) {
                     try {
                         final UserRoles userRoles = userService.getUser(account.getAccount());
                         securityInfo = userRoles.getSecurityInfo();
-                        log.debug("User {} found in community, retrieved security info was {}null", account.getAccount(), securityInfo == null ? "": "not ");
+                        log.debug("User {} found in community, retrieved security info was {}null", account.getAccount(), securityInfo == null ? "" : "not ");
                         break;
-                    } catch(AciErrorException e) {
+                    } catch (final AciErrorException e) {
                         log.error("Community returned an AciErrorException: {}, with ErrorId: {}", e.getErrorDescription(), e.getErrorId());
                         log.error("Username was: {}", account.getAccount());
                         log.error("Stack trace", e);
                         throw e;
-                    } catch(Exception e) {
+                    } catch (final Exception e) {
                         log.error("An unhandled exception occurred while querying community", e);
                         throw e;
                     }
