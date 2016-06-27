@@ -26,7 +26,7 @@ public class FindSecurityInfoRetrieverService implements SecurityInfoRetriever {
             for (final Account account : userInformation.getAccounts()) {
                 final Account.Type accountType = account.getType();
 
-                if (accountType.equals(Account.Type.ONSITE) || accountType.equals("active_directory")) {
+                if (accountType.equals(Account.Type.ONSITE) || accountType.equals(new Account.Type("active_directory"))) {
                     try {
                         final UserRoles userRoles = userService.getUser(account.getAccount());
                         securityInfo = userRoles.getSecurityInfo();
