@@ -9,11 +9,10 @@ enum SsoMvcConstants {
     AUTHENTICATE_PATH("authenticatePath"),
     COMBINED_REQUEST_API("combinedRequestApi"),
     ERROR_PAGE("errorPage"),
-    COOKIE_ERROR_PAGE("cookieErrorPage"),
     LIST_APPLICATION_REQUEST("listApplicationRequest"),
-    LIST_APPLICATION_REQUEST_API("listApplicationRequestApi"),
     LOGOUT_ENDPOINT("endpoint"),
     LOGOUT_REDIRECT_URL("redirectUrl"),
+    PATCH_REQUEST_API("combinedPatchRequestApi"),
     SSO_PAGE("ssoPage"),
     SSO_ENTRY_PAGE("ssoEntryPage");
 

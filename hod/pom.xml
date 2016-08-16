@@ -134,6 +134,29 @@
             <groupId>com.hp.autonomy.frontend</groupId>
             <artifactId>haven-search-components-hod</artifactId>
             <version>${haven.search.components.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.hp.autonomy.hod</groupId>
+                    <artifactId>java-hod-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.hp.autonomy.hod</groupId>
+            <artifactId>java-hod-client</artifactId>
+            <version>0.18.8</version>
+        </dependency>
+
+        <!-- The version pulled in transitively is not compatible with Find -->
+        <dependency>
+            <groupId>com.hp.autonomy.frontend</groupId>
+            <artifactId>aci-types</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>1.9.0</version>
         </dependency>
 
         <!--
