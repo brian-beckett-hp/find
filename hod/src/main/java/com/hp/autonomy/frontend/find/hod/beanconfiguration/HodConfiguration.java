@@ -44,7 +44,8 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @Configuration
 public class HodConfiguration {
-    public static final String SSO_PAGE_PROPERTY = "${find.hod.sso:https://www.idolondemand.com/sso.html}";
+    public static final String SSO_GET_PAGE_PROPERTY = "${find.hod.sso:https://www.havenondemand.com/sso.html}";
+    public static final String SSO_POST_PAGE_PROPERTY = "${find.hod.ssoPost:https://www.havenondemand.com/sso}";
     public static final String HOD_API_URL_PROPERTY = "${find.iod.api:https://api.havenondemand.com}";
     private static final int HTTP_SOCKET_TIMEOUT = 90000;
     private static final int HTTP_MAX_CONNECTIONS_PER_ROUTE = 20;

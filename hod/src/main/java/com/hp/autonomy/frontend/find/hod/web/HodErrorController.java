@@ -15,11 +15,9 @@ import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Response;
 import java.net.URI;
 
 /**
@@ -50,15 +48,12 @@ public class HodErrorController extends CustomErrorController {
     }
 
     @RequestMapping(DispatcherServletConfiguration.CLIENT_AUTHENTICATION_ERROR_PATH)
-    public ModelAndView clientAuthenticationErrorPage(
-            @RequestParam(STATUS_CODE_PARAM) final int statusCode,
-            final HttpServletRequest request
-    ) {
+    public ModelAndView clientAuthenticationErrorPage(final HttpServletRequest request) {
         return controllerUtils.buildErrorModelAndView(new ErrorModelAndViewInfo.Builder()
                 .setRequest(request)
                 .setMainMessageCode(MESSAGE_CODE_CLIENT_AUTHENTICATION_ERROR_MAIN)
                 .setSubMessageCode(MESSAGE_CODE_CLIENT_AUTHENTICATION_ERROR_SUB)
-                .setStatusCode(statusCode)
+                .setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                 .setButtonHref(getAuthenticationErrorUrl(request))
                 .build());
     }

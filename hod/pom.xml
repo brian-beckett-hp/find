@@ -144,7 +144,12 @@
         <dependency>
             <groupId>com.hp.autonomy.hod</groupId>
             <artifactId>java-hod-client</artifactId>
-            <version>0.18.8</version>
+            <version>0.18.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hp.autonomy.hod</groupId>
+            <artifactId>hod-sso-spring-security</artifactId>
+            <version>0.7.1</version>
         </dependency>
 
         <!-- The version pulled in transitively is not compatible with Find -->

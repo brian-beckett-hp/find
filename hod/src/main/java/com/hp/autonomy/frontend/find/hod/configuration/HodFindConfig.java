@@ -27,6 +27,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jasypt.util.text.TextEncryptor;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -164,6 +166,15 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     @JsonIgnore
     public ApiKey getApiKey() {
         return iod.getApiKey();
+    }
+
+    @Override
+    public URL getSsoUrl() {
+        try {
+            return new URL(System.getProperty("find.hod.sso", "https://www.havenondemand.com/sso.html"));
+        } catch (final MalformedURLException e) {
+            throw new RuntimeException("Failed to parse SSO page URL", e);
+        }
     }
 
     @JsonPOJOBuilder(withPrefix = "set")

@@ -20,31 +20,23 @@ import com.hp.autonomy.hod.client.error.HodErrorException;
 import com.hp.autonomy.hod.sso.HodAuthenticationRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 public class SsoController {
-
     public static final String SSO_PAGE = "/sso";
     public static final String SSO_AUTHENTICATION_URI = "/authenticate-sso";
     public static final String SSO_LOGOUT_PAGE = "/sso-logout";
-    public static final String HOD_SSO_ERROR_PARAM = "error";
 
     @Autowired
     private HodAuthenticationRequestService hodAuthenticationRequestService;
-
-    @Autowired
-    private HodErrorController hodErrorController;
 
     @Autowired
     private ConfigService<HodFindConfig> configService;
@@ -55,27 +47,24 @@ public class SsoController {
     @Value(AppConfiguration.GIT_COMMIT_PROPERTY)
     private String gitCommit;
 
-    @Value(HodConfiguration.SSO_PAGE_PROPERTY)
-    private String ssoPage;
+    @Value(HodConfiguration.SSO_GET_PAGE_PROPERTY)
+    private String ssoPageGet;
+
+    @Value(HodConfiguration.SSO_POST_PAGE_PROPERTY)
+    private String ssoPagePost;
 
     @Value(HodConfiguration.HOD_API_URL_PROPERTY)
     private String logoutEndpoint;
-
-    @RequestMapping(value = SSO_PAGE, method = RequestMethod.GET, params = HOD_SSO_ERROR_PARAM)
-    public ModelAndView ssoError(final HttpServletRequest request, final HttpServletResponse response) throws HodErrorException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        return hodErrorController.authenticationErrorPage(request, response);
-    }
 
     @RequestMapping(value = SSO_PAGE, method = RequestMethod.GET)
     public ModelAndView sso(final ServletRequest request) throws JsonProcessingException, HodErrorException {
         final Map<String, Object> ssoConfig = new HashMap<>();
         ssoConfig.put(SsoMvcConstants.AUTHENTICATE_PATH.value(), SSO_AUTHENTICATION_URI);
-        ssoConfig.put(SsoMvcConstants.COMBINED_REQUEST_API.value(), HodCombinedRequestController.COMBINED_REQUEST);
         ssoConfig.put(SsoMvcConstants.ERROR_PAGE.value(), DispatcherServletConfiguration.CLIENT_AUTHENTICATION_ERROR_PATH);
-        ssoConfig.put(SsoMvcConstants.LIST_APPLICATION_REQUEST.value(), hodAuthenticationRequestService.getListApplicationRequest());
-        ssoConfig.put(SsoMvcConstants.SSO_PAGE.value(), ssoPage);
-        ssoConfig.put(SsoMvcConstants.PATCH_REQUEST_API.value(), HodCombinedRequestController.COMBINED_PATCH_REQUEST);
+        ssoConfig.put(SsoMvcConstants.PATCH_REQUEST.value(), hodAuthenticationRequestService.getCombinedPatchRequest());
+        ssoConfig.put(SsoMvcConstants.SSO_PAGE_GET_URL.value(), ssoPageGet);
+        ssoConfig.put(SsoMvcConstants.SSO_PAGE_POST_URL.value(), ssoPagePost);
+        ssoConfig.put(SsoMvcConstants.SSO_PATCH_TOKEN_API.value(), HodCombinedRequestController.COMBINED_PATCH_REQUEST_URL);
         ssoConfig.put(SsoMvcConstants.SSO_ENTRY_PAGE.value(), SSO_PAGE);
 
         final Map<String, Object> attributes = new HashMap<>();

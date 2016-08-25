@@ -10,7 +10,6 @@ import com.hp.autonomy.frontend.find.core.web.AbstractErrorControllerTest;
 import com.hp.autonomy.frontend.find.core.web.ErrorModelAndViewInfo;
 import com.hp.autonomy.frontend.find.hod.configuration.HodFindConfig;
 import com.hp.autonomy.frontend.find.hod.configuration.HsodConfig;
-import org.apache.http.HttpStatus;
 import org.hamcrest.beans.HasPropertyWithValue;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class HodErrorControllerTest extends AbstractErrorControllerTest<HodError
 
     @Test
     public void clientAuthenticationErrorPage() {
-        assertNotNull(errorController.clientAuthenticationErrorPage(HttpStatus.SC_GONE, request));
+        assertNotNull(errorController.clientAuthenticationErrorPage(request));
         verify(controllerUtils).buildErrorModelAndView(argThat(new HasPropertyWithValue<ErrorModelAndViewInfo>("mainMessageCode", is(HodErrorController.MESSAGE_CODE_CLIENT_AUTHENTICATION_ERROR_MAIN))));
     }
 }
