@@ -171,7 +171,8 @@ public class HodFindConfig extends AbstractConfig<HodFindConfig> implements Auth
     @Override
     public URL getSsoUrl() {
         try {
-            return new URL(System.getProperty("find.hod.sso", "https://www.havenondemand.com/sso.html"));
+            // The SSO URL method is only used to determine the origin for the second redirect to dev console, choose the POST URL to support Phillips SAML login
+            return new URL(System.getProperty("find.hod.ssoPost", "https://www.havenondemand.com/sso.html"));
         } catch (final MalformedURLException e) {
             throw new RuntimeException("Failed to parse SSO page URL", e);
         }
